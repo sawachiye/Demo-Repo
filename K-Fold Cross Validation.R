@@ -38,3 +38,20 @@ print(model)
 #RMSE: The root mean squared error. This measures the average difference between the predictions made by the model and the actual observations. The lower the RMSE, the more closely a model can predict the actual observations.
 #Rsquared: This is a measure of the correlation between the predictions made by the model and the actual observations. The higher the R-squared, the more closely a model can predict the actual observations.
 #MAE: The mean absolute error. This is the average absolute difference between the predictions made by the model and the actual observations. The lower the MAE, the more closely a model can predict the actual observations.
+
+#Each of the three metrics provided in the output (RMSE, R-squared, and MAE) give us an idea of how well the model performed on previously unseen data.
+#In practice we typically fit several different models and compare the three metrics provided by the output seen here to decide which model produces the lowest test error rates and is therefore the best model to use.
+
+#We can use the following code to examine the final model fit:
+  
+  #view final model
+  model$finalModel
+
+#We can use the following code to view the model predictions made for each fold:
+  
+  #view predictions for each fold
+  model$resample
+ 
+#Note that in this example we chose to use k=5 folds, 
+  #but you can choose however many folds you’d like. 
+  #In practice, we typically choose between 5 and 10 folds because this turns out to be the optimal number of folds that produce reliable test error rates.  
