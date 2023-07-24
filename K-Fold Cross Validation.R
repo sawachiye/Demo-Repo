@@ -179,3 +179,11 @@ print(model)
  # along with other details
  print(model) 
  
+ 
+ ####  Advantages of K-fold Cross-Validation
+ #Fast computation speed.
+ #A very effective method to estimate the prediction error and the accuracy of a model.
+ 
+ ### Disadvantages of K-fold Cross-Validation
+ #A lower value of K leads to a biased model and a higher value of K can lead to variability in the performance metrics of the model.
+ #Thus, it is very important to use the correct value of K for the model (generally K = 5 and K = 10 is desirable).
