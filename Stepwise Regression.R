@@ -88,3 +88,9 @@ both$anova
 
 #view final model
 both$coefficients
+
+#Here is how to interpret the results:
+
+#First, we fit the intercept-only model.
+#Next, we added predictors to the model sequentially just like we did in forward-stepwise selection. However, after adding each predictor we also removed any predictors that no longer provided an improvement in model fit.
+#We repeated this process until we reached a final model.
