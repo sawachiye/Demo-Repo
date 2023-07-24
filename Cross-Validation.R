@@ -128,3 +128,84 @@ print(model)
 
 #Disadvantages:
 #Training the model N times leads to expensive computation time if the dataset is large.
+
+
+#####   K-fold Cross-Validation
+
+#This cross-validation technique divides the data into K subsets(folds) of almost equal size. Out of these K folds, one subset is used as a validation set, and rest others are involved in training the model. Following are the complete working procedure of this method:
+  
+#Split the dataset into K subsets randomly
+#Use K-1 subsets for training the model
+#Test the model against that one subset that was left in the previous step
+#Repeat the above steps for K times i.e., until the model is not trained and tested on all subsets
+#Generate overall prediction error by taking the average of prediction errors in every case
+#Below is the implementation of this method:
+  
+  # R program to implement
+  # K-fold cross-validation
+  
+  # setting seed to generate a
+  # reproducible random sampling
+  set.seed(125)
+
+# defining training control
+# as cross-validation and
+# value of K equal to 10
+train_control <- trainControl(method = "cv",
+                              number = 10)
+
+# training the model by assigning sales column
+# as target variable and rest other column
+# as independent variable
+model <- train(sales ~., data = marketing,
+               method = "lm",
+               trControl = train_control)
+
+# printing model performance metrics
+# along with other details
+print(model)
+
+
+#Advantages:
+  #Fast computation speed.
+#A very effective method to estimate the prediction error and the accuracy of a model.
+
+#Disadvantages:
+#A lower value of K leads to a biased model and a higher value of K can lead to variability in the performance metrics of the model. Thus, it is very important to use the correct value of K for the model(generally K = 5 and K = 10 is desirable).
+#Repeated K-fold cross-validation:
+#As the name suggests, in this method the K-fold cross-validation algorithm is repeated a certain number of times. Below is the implementation of this method:
+  
+  # R program to implement
+
+####   repeated K-fold cross-validation
+  
+  # setting seed to generate a
+  # reproducible random sampling
+  set.seed(125)
+
+# defining training control as
+# repeated cross-validation and
+# value of K is 10 and repetition is 3 times
+train_control <- trainControl(method = "repeatedcv",
+                              number = 10, repeats = 3)
+
+# training the model by assigning sales column
+# as target variable and rest other column
+# as independent variable
+model <- train(sales ~., data = marketing,
+               method = "lm",
+               trControl = train_control)
+
+# printing model performance metrics
+# along with other details
+print(model)
+
+
+#Advantages:
+  
+#In each repetition, the data sample is shuffled which results in developing different splits of the sample data.
+
+#Disadvantages:
+#With each repetition, the algorithm has to train the model from scratch which means the computation time to evaluate the model increases by the times of repetition.
+
+##Note: The most preferred cross-validation technique is repeated K-fold cross-validation for both regression and classification machine learning model.
