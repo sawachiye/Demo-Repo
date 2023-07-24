@@ -180,6 +180,50 @@ print(model)
  print(model) 
  
  
+ ###Implement Repeated K-fold Cross-validation on Regression
+ #Step 1: Loading the dataset and required packages
+ # loading required packages
+ 
+ # package to perform data manipulation
+ # and visualization
+ library(tidyverse)
+ 
+ # package to compute
+ # cross - validation methods
+ library(caret)
+ 
+ #Step 2: Loading and inspecting the dataset
+ # access the data from R’s datasets package
+ data(trees)
+ 
+ # look at the first several rows of the data
+ head(trees)
+ 
+ #Step 3: Building the model with the repeated K-fold algorithm
+ 
+ # setting seed to generate a
+ # reproducible random sampling
+ set.seed(125)
+ 
+ # defining training control as
+ # repeated cross-validation and
+ # value of K is 10 and repetition is 3 times
+ train_control <- trainControl(method = "repeatedcv",
+                               number = 10, repeats = 3)
+ 
+ # training the model by assigning sales column
+ # as target variable and rest other column
+ # as independent variable
+ model <- train(Volume ~., data = trees,
+                method = "lm",
+                trControl = train_control)
+ 
+ #Step 4:  Evaluating the accuracy of the model
+ # printing model performance metrics
+ # along with other details
+ print(model)
+ 
+ 
  ####  Advantages of K-fold Cross-Validation
  #Fast computation speed.
  #A very effective method to estimate the prediction error and the accuracy of a model.
