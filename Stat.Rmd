@@ -1,0 +1,66 @@
+---
+title: "Learning the Introduction to Basic Statistics in Rmarkdown"
+author: "Sheila Wachiye"
+#date: "20/06/2023"
+#date: "`r Sys.Date()`"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document:
+    toc: true # add a table of contents (TOC). 
+    toc_depth: 2  #specify the depth of headers. If the table of contents depth is not explicitly specified, it defaults to 3 (meaning that all level 1, 2, and 3 headers will be included in the table of contents)
+    toc_float: true #option to float the table of contents to the left of the main document content
+    number_sections: true #You can add section numbering to headers 
+---
+
+# What is the PRESS Statistic?
+
+In statistics, we fit regression models for two reasons:
+
+(1) Explain the relationship between one or more explanatory variables and a response variable.
+
+(2) Predict values of a response variable based on the values of one or more explanatory variables.
+
+The goal is to predict the values of a response variable by using using the best possible regression model to do so. One metric to find the regression model that will make the best predictions on new data is the  **PRESS Statistic **, which stands for the “ **P**redicted  **R**Esidual  **S**um of  **S**quares.”
+
+It is calculated as:
+ $$ PRESS = \displaystyle\sum{(e_i} / (1-h_{ii}))^2$$
+where:\
+$e_i$: The ith residual.<br>
+$h_{ii}$: A measure of the influence (also called “leverage”) of the ith observation on the model fit.<br>
+
+Given several regression models, the one with the lowest ***PRESS*** should be selected as the one that will perform best on a new dataset. <br>
+
+Example on how to calculate the ***PRESS statistic*** for 3 different linear regression models in R.Suppose we have a dataset with three explanatory variables, $x_1$, $x_2$, and $x_3$, and one response variable y:
+
+```{r}
+data <- data.frame(x1 = c(2, 3, 3, 4, 4, 6, 8, 9, 9, 9),
+                   x2 = c(2, 2, 3, 3, 2, 3, 5, 6, 6, 7),
+                   x3 = c(12, 14, 14, 13, 8, 8, 9, 14, 11, 7),
+                    y = c(23, 24, 15, 9, 14, 17, 22, 26, 34, 35))
+data
+```
+Code showing how to fit three different regression models to this dataset using the ***lm()*** function:
+```{r}
+model1 <- lm(y~x1, data=data)
+summary(model1)
+model2 <- lm(y~x1+x2, data=data)
+summary(model2)
+model3 <- lm(y~x2+x3, data=data)
+summary(model3)
+```
+To calculate the PRESS statistic for each model.
+
+```{r}
+#create custom function to calculate the PRESS statistic
+PRESS <- function(model) {
+    i <- residuals(model)/(1 - lm.influence(model)$hat) # lm.influence provides the basic quantities for checking the quality of regression fits.
+    sum(i^2)
+}
+#calculate PRESS for model 1
+PRESS(model1)
+#calculate PRESS for model 2
+PRESS(model2)
+#calculate PRESS for model 3
+PRESS(model3)
+```
+Based on the results, the model with the lowest PRESS statistic is ***model2*** with a PRESS statistic of **519.6435**. Thus, this model is best suited to make predictions on a new dataset.
