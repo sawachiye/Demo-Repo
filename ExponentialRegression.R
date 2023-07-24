@@ -21,3 +21,6 @@ model <- lm(log(y)~ x)
 
 #view the output of the model
 summary(model)
+
+
+#For logistic see https://www.statology.org/logistic-regression-in-r/
