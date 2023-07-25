@@ -33,6 +33,7 @@ getwd()
 list.files()
 # Load data 
 input <- read.csv("Weather_DesMoines.csv")
+#head(input)
 #To be consistent with our model, we will use a daily time step data set. 
 #There are many weather variables in this dataset, 
 #but we will focus on the average daily temperature, which is the input required for our model.
@@ -41,6 +42,7 @@ input <- read.csv("Weather_DesMoines.csv")
 # Average daily temperature (in °C)
 # (display only first values)
 head(input$T_DAILY_MEAN)
+head(input$SOLARAD_DAILY)
 
 
 #Data preparation
@@ -52,15 +54,15 @@ head(input$T_DAILY_MEAN)
 #which allows to perform a sequence of actions.
 #As a first step, using the select() function from the {dplyr} package, 
 #we will select only the column with daily mean temperature and solar radiation, 
-#which are the only climate variables used in the model. In this step, 
-#we will also rename the variables in the same way as in the model, for more clarity.
+#which are the only climate variables used in the model. 
+#In this step, we will also rename the variables in the same way as in the model, for more clarity.
 
 # Creating 'data' from 'input': 
 # select only mean T° data
 data<-input%>%                  # Best practice: line break after %>%,
   dplyr::select(                # then each new line indented by two spaces
-    tas = T_DAILY_MEAN,   #daily mean temp
-    rsds = SOLARAD_DAILY    # solar radiation    # New name = Old name
+    tas = T_DAILY_MEAN,         #daily mean temp
+    rsds = SOLARAD_DAILY        # solar radiation    # New name = Old name
   )   
 head(data)
 
@@ -78,6 +80,7 @@ data <- data%>%
 head(data)
 
 #In this tutorial, we are interested in corn development. 
+
 #Therefore, we will keep only dates between standard sowing and harvest dates for the area. 
 #To do so, we will use the filter() function.
 
@@ -87,8 +90,8 @@ day_harvest<-287                     # Harvest ~ mid-October -Julian date of har
 data <- data%>%
   
   dplyr::filter(
-    day_number>=day_sowing,                  
-    day_number<=day_harvest
+    day_number>=day_sowing,         #assigning days between sowing and harvesting         
+    day_number<=day_harvest         
   )
 head(data)
 
@@ -134,6 +137,9 @@ ggplot2::ggplot(
 #but it should be noted that it would be possible to pursue the chain of actions started from the input table.
 #The mutate() function will again be used to calculate (Eq.1) and 
 #add thermal time (TT) to data table. 
+# the thermal time (TT, in °C) is computed from the daily mean temperature (tas, in °C) 
+# by using a reference temperature under which plant growth stops (T0):
+
 #However, this case is a little bit different because there is a condition 
 #(daily temperature above or below (T0)                                                                                       
 #This condition may be expressed with the case_when() function.
@@ -143,8 +149,8 @@ T0<-6 # Set T0 for corn: 6°C
 model<-data%>%
   dplyr::mutate(
     TT=dplyr::case_when(
-      tas<T0~0,       # Condition 1 ~ Column value #any temp less than 6 = 0
-      tas>=T0~tas-T0  # Condition 2 ~ Volumn value #any temp >= 6 will b that temp minus 6
+      tas<T0~0,       # Condition 1 ~ Column value #any temp less than 6 = 0 which mean no growth
+      tas>=T0~tas-T0  # Condition 2 ~ Column value #any temp >= 6 will b that temp minus 6
     )
   )
 # Print first rows
@@ -152,6 +158,7 @@ head(model)
 
 
 #We may then calculate growing degree days (GDD) from (Eq.2)
+#(Eq. 2)Cumulative sum of thermal time
 # using the cumsum() function available in base R.
 
 model<-data%>%
@@ -167,7 +174,17 @@ model<-data%>%
 # Print last rows
 tail(model)
 
-#Finally, to estimate the number of leaves, we will split Eq.1 into two parts: 
+#Finally, to estimate the number of leaves, 
+#The number of leaves per plant (nleaf) is computed from GDD and two parameters: 
+#one representing the thermal requirement for the emergence of one leaf (GDD1leaf, in °C), 
+#the other the maximum number of leaves per plant (maxnleaf):
+#Hence, the model consists of 
+# 1--  one input variable (tas), 
+# 2--  two internal variables (TT and GDD), 
+# 3--  three parameters, (T0, GDD1leaf and maxnleaf) and 
+# 4--  one output variable (nleaf).
+
+#we will split Eq.1 into two parts: 
 #estimation of the potential number of leaves, 
 #then comparison with the maximum possible number of leaves per plant.
 
@@ -180,12 +197,12 @@ max_nleaf <- 20
 model<-data%>%
   dplyr::mutate(
     TT=dplyr::case_when(
-      tas<T0~0,
-      tas>=T0~tas-T0
+      tas<T0~0,       # Condition 1 ~ Column value #any temp less than 6 = 0 which mean no growth
+      tas>=T0~tas-T0  # Condition 2 ~ Column value #any temp >= 6 will b that temp minus 6
     )
   )%>%  
   mutate(
-    GDD = cumsum(TT)
+    GDD = cumsum(TT)# cumulative sum of thermal time
   )%>%
   # Potential number of leaves (no max values)
   mutate(
