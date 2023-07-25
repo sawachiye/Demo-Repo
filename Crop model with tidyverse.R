@@ -23,6 +23,7 @@ rm(list=ls())
 #define URL location
 #url <- " https://github.com/BjnNowak/CropModel/blob/main/Weather_DesMoines.csv"
 #define destination for file
+
 #destfile <- "C:/LocalData/swachiye/UoK-Work/REACT-Project/CropModelTry/CropModelTrial"
 
 
@@ -32,6 +33,11 @@ getwd()
 list.files()
 # Load data 
 input <- read.csv("Weather_DesMoines.csv")
+#To be consistent with our model, we will use a daily time step data set. 
+#There are many weather variables in this dataset, 
+#but we will focus on the average daily temperature, which is the input required for our model.
+
+
 # Average daily temperature (in °C)
 # (display only first values)
 head(input$T_DAILY_MEAN)
