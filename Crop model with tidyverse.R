@@ -1,6 +1,6 @@
 setwd("C:/LocalData/swachiye/UoK-Work/REACT-Project/CropModelTry/CropModelTrial")
 
-## Crop model with tidyverse (Part I)
+#### Crop model with tidyverse (Part I) ####
 
 #tidyverse is a collection of extensions designed to work together and based on a common philosophy,
 #making data manipulation and plotting easier.
@@ -290,6 +290,7 @@ baseline <- model_fun(
 breed <- model_fun(
   name="Improved cultivar",data=data, GDD_1leaf = 40
 )
+tail(breed)
 
 comp<-rbind.data.frame(                         # Merging results 
   baseline,                                     # before plotting
@@ -309,7 +310,6 @@ ggplot(
 
 
 #Following this example, the function can be used to compare many scenarios.
-
 #Application Use the model to compare the number of leaves between two cities: DesMoines (Iowa) and Sandstone (Minnesota)
 
 # Load second datafile 
@@ -352,15 +352,17 @@ ggplot(
   )
 
 
-
+#code for the whole model to estimate potential maximum corn yield from temperature and solar radiation.
 # Outside the function:
-# Required parameters to compute C
+
+# Required parameters to compute C(check in the function)
 # Light extinction coefficient
 K <- 0.56
 # Individual leaf area (m-2)
 S <- 0.05
 # Plant density (m-2)
 d <- 90000/10000
+
 
 # Model function
 model_fun <- function(
@@ -467,4 +469,9 @@ ggplot(
     x = "Day number",
     y = "Potential max yield (t.ha-1)"
   )
+
+
+####  Crop model with tidyverse (Part II)  ####
+
+
 
