@@ -519,3 +519,58 @@ ggplot(data=baseline,aes(x=day_number,y=grain_t))+
 #we will take the same boundaries as Ringeval et al. (2021): [0.06; 0.18] forC and [1; 3] for RUE.
 
 #create a data frame that will store the different values that these coefficients can take:
+input<-data.frame(
+  C_draw=seq(0.06,0.18,0.03),  # C varies from 0.06 to 0.18 with a step of 0.03
+  RUE_draw=seq(1,3,0.5),       # RUE varies from 1 to 3 with a step of 0.5
+  relative_draw=seq(0,1,0.25)  # To compare both variables on the same scale
+)
+
+input
+
+#1.2. Create a function
+#To apply our model to each of these cases, we need to create a new function.
+#First, to simplify the sensitivity analysis, we will limit ourselves to the comparison of the final yield. 
+#To do this, we will use the tail() function to extract only the last value.
+
+output<-model_fun(
+  name="DesMoines", 
+  data=data, 
+  GDD_1leaf = 50,
+  C=0.12,
+  RUE=2,
+  nthresh = 16
+)%>%
+  select(grain_t)%>%        # Select only yield values
+  tail(1)                   # Select only the last row 
+output
+head(data)
+#create a new function that performs this extraction by taking as arguments the two variables of interest 
+# C and RUE:
+
+# Function creation
+sensitivity_fun<-function(C_vec,RUE_vec){
+  output<-model_fun(
+    name="DesMoines", 
+    data=data, 
+    GDD_1leaf = 50,
+    C=C_vec,
+    RUE=RUE_vec,
+    nthresh = 16
+  )%>%
+    select(grain_t)%>%        # Select only yield values
+    tail(1)
+  return(as.numeric(output))  # Specify that you want numeric output
+}
+# "Manual" analysis with different values:
+sensitivity_fun(C_vec=0.12,RUE_vec=2)
+
+#1.3. Perform the sensitivity analysis
+# We are now going to apply this function to the input data frame that we have prepared before. 
+#To do so, we will use the mapply() function, 
+#that allows to iterate the same function over a vector without the need of using the for loop, 
+#that is known to be slow in R. 
+#Compared to sapply(), which can perform the same task, mapply can take several arguments. 
+#The structure of the function is: mapply(FunctionName, Argument1, Argument2…).
+
+#A sensitivity analysis is conducted by varying each parameter independently. 
+#We will start with C:
