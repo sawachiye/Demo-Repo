@@ -473,5 +473,49 @@ ggplot(
 
 ####  Crop model with tidyverse (Part II)  ####
 
+#In the first part) of this tutorial, we created a model that estimates the maximum potential yield of corn based on weather data (temperature and solar radiation). Briefly, this estimation is done in three steps:
+# 1. Estimation of number of leaves (based on daily temperature)
+# 2. Estimation of the amount of photosynthetically active radiation intercepted by the plants
+# 3. Conversion of this amount of radiation into biomass (first plant then grain)
 
+ #We will now investigate the influence of the different parameters on the model’s results.
 
+# Load tidyverse 
+library(tidyverse)
+# Load previous data and function (not shown here)
+# Apply function once loaded
+baseline <- model_fun(
+  name="DesMoines", 
+  data=data, 
+  GDD_1leaf = 50,
+  C=0.12,
+  RUE=2,
+  nthresh = 16
+)
+# Plotting results
+ggplot(data=baseline,aes(x=day_number,y=grain_t))+
+  geom_point()+
+  labs(  
+    title = "Yield estimation for DesMoines",
+    x = "Day number",
+    y = "Potential max yield (t.ha-1)"
+  )
+
+#1. Sensitivity analysis
+#A sensitivity analysis is used to determine the effect of uncertainty about the variables or parameters of a model on the final result. 
+#Here, we will evaluate the effect of two parameters: 
+# C, which reflects the crops’s capacity to intercept light and 
+# Radiation Use Efficieny (RUE, in gDM.MJ-1), which estimates the conversion of the intercepted radiation into biomass.
+#The parameter C can be decomposed in different parameters according to the following equation:
+  
+  # (Eq. 1) C=  k∗Sleaf∗dplant
+#where 
+# k is the light extinction coefficient (reflecting light penetration in crop’s foliage), 
+# Sleaf is the individual leaf area, and 
+# dplant is the plant density. 
+# These three parameters will be evaluated simultaneously by the sensitivity analysis perfomed on C
+#1.1. Prepare the inputs
+#An important part of sensitivity analysis is to determine the boundaries of each parameter, which can be done through a literature review. For this tutorial, 
+#we will take the same boundaries as Ringeval et al. (2021): [0.06; 0.18] forC and [1; 3] for RUE.
+
+#create a data frame that will store the different values that these coefficients can take:
