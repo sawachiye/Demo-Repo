@@ -206,12 +206,12 @@ model<-data%>%
   )%>%
   # Potential number of leaves (no max values)
   mutate(
-    pot_nleaf = GDD/GDD_1leaf
+    pot_nleaf = GDD/GDD_1leaf #cumulative TT over 50 in this case
   )%>%
   # Estimated number of leaves (including max)
   mutate(
     nleaf = case_when(
-      pot_nleaf <= max_nleaf ~ round(pot_nleaf),
+      pot_nleaf <= max_nleaf ~ round(pot_nleaf),#in this case max_nleaf <- 20
       pot_nleaf > max_nleaf ~ max_nleaf
     )
   )
