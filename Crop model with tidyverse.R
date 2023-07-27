@@ -574,3 +574,108 @@ sensitivity_fun(C_vec=0.12,RUE_vec=2)
 
 #A sensitivity analysis is conducted by varying each parameter independently. 
 #We will start with C:
+
+sensitivity<-input%>%
+  # "Pipe" our function to the input data frame:
+  mutate(
+    C_analysis=mapply(
+      sensitivity_fun,     # Name of the function
+      C_vec=C_draw,        # Argument 1: C (varies)
+      RUE_vec=2            # Argument 2: RUE (does not vary yet)
+    )
+  )
+
+# Plot results
+ggplot(sensitivity,aes(x=C_draw,y=C_analysis))+
+  geom_line()+
+  labs(                                  
+    title = "Sensitivity analysis: C",
+    x = "C",
+    y = "Potential max yield (t.ha-1)"
+  )
+
+#We have thus shown the range of variation of the final yield which depends on the choice of C.
+
+#Application Perform the sensitivity analysis for RUE putting the result in a new column of the data frame and compare the two parameters.
+
+sensitivity<-input%>%
+  mutate(
+    C_analysis=mapply(sensitivity_fun,RUE_vec=2,C_vec=C_draw)
+  )%>%
+  mutate(
+    RUE_analysis=mapply(sensitivity_fun,RUE_vec=RUE_draw,C_vec=0.12)
+  )
+
+ggplot(sensitivity)+
+  geom_line(aes(x=relative_draw,y=C_analysis),col="blue")+
+  geom_line(aes(x=relative_draw,y=RUE_analysis),col="red")+
+  labs(                                  # Customize labels
+    title = "Sensitivity analysis: C (blue) and RUE (red)",
+    x = "Parameters variation (relative scale)",
+    y = "Potential max yield (t.ha-1)"
+  )
+
+#According to the first results of this sensitivity analysis, 
+#it seems that the conversion of solar radiation to biomass influences the results more than the interception stage.
+
+
+##    2. Uncertainty analysis
+#As sensitivity analysis, the uncertainty analysis is used to determine the effect of uncertainty about the variables or parameters of a model on the final result but here we consider simultaneously the variability of all parameters. 
+#Thus, rather than prioritizing the influence of the different parameters, the uncertainty analysis seeks to evaluate the accuracy of the model result.
+
+#As for the sensitivity analysis, we will only focus on C and RUE here.
+
+# 2.1. Prepare the inputs
+#For the uncertainty analysis, the parameters C and RUE vary simultaneously, 
+#so we will create pairs of random values for these two parameters. 
+#To do so, we will use the runif() function, wich assumes a uniform distribution on the interval from mininum to maximum.
+
+N=100                       # Number of draws
+
+input<-data.frame(
+  C_draw=runif(
+    N,                      # Set number of draws
+    0.06,                   # Min value
+    0.18                    # Max value
+  ),                    
+  RUE_draw=runif(
+    N,1,3
+  )
+)
+
+head(input)
+
+#2.2. Create a function
+#No need to create a new function here, 
+#we will use the same function we created for the sensitivity analysis.
+
+#2.3. Perform the uncertainty analysis
+#We will also use mapply() to apply our function to our different combination of values of 
+#{C;RUE}.
+
+uncertainty<-input %>%
+  mutate(
+    uncertainty=mapply(sensitivity_fun,RUE_vec=RUE_draw,C_vec=C_draw)
+  )
+
+ggplot(uncertainty,aes(y=uncertainty))+
+  geom_boxplot()+                           # Use boxplot to plot the results
+  labs(
+    title="Uncertainty analysis",
+    y="Potential max yield (t.ha-1)"
+  )+
+  theme(                                    # Customize plot rendering 
+    axis.text.x=element_blank(),            # Hide x-axis labels
+    axis.ticks.x=element_blank()            # Hide x-axis ticks
+  )
+
+##We see that the uncertainty related to the estimation of the final yield is high. 
+#This uncertainty can be reduced by optimizing the model, 
+#as we will do in the next part of this tutorial.
+
+
+#In the first part) of this tutorial, we created the model. 
+#In the second part we analyzed the uncertainty associated with the model predictions.
+#We will now evaluate the error associated with the model predictions (the Root Mean Square Error, RMSE), 
+#and then try to decrease this error by optimizing the RUE parameter, 
+#which we previously identified as the one that most influenced the model results.
